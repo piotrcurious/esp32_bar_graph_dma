@@ -1,3 +1,5 @@
+// the callbacks for spi transactions are totally hallucinated. 
+
 /* esp32_tft_dma_bar_plot_descriptor_chain.ino - FIXED
 
 Objective: implement high-throughput SPI DMA by creating a chained-like transaction 
