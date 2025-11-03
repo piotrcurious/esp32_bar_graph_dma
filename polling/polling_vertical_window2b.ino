@@ -14,12 +14,12 @@
 // ---------- USER CONFIG ----------
 #define USE_DMA               1    // 1 = attempt DMA, 0 = always fillRect()
 #define TFT_ROTATION          1    // keep your display rotation
-#define BAR_COUNT             40   // number of bars across the screen
-#define BAR_PIXEL_WIDTH       6    // width of each vertical bar in pixels
+#define BAR_COUNT             64   // number of bars across the screen
+#define BAR_PIXEL_WIDTH       4    // width of each vertical bar in pixels
 #define BAR_MAX_HEIGHT_PIXELS 240  // maximum bar height in pixels (vertical)
 #define PLOT_X                0   // left margin
 #define PLOT_Y                0    // top margin
-#define PLOT_SPACING          2    // horizontal spacing between bars (pixels)
+#define PLOT_SPACING          1    // horizontal spacing between bars (pixels)
 
 // Colors (565)
 #define COLOR_FILL  0x07E0   // green
@@ -225,7 +225,7 @@ void plotTask(void* pvParameters) {
             tft.pushImageDMA(dx, dy, w, h, src, nullptr);
 
             // Wait for DMA completion
-            while (tft.dmaBusy()) vTaskDelay(pdMS_TO_TICKS(1));
+            while (tft.dmaBusy()) vTaskDelay(pdMS_TO_TICKS(0));
 
             // Immediately clear the spacing region to the right of this bar (single fillRect).
             if (PLOT_SPACING > 0 && currentBarIndex + 1 < plotDataCount) {
@@ -265,7 +265,7 @@ void plotTask(void* pvParameters) {
         }
 
         currentBarIndex++;
-        plotProgress = (uint8_t)((currentBarIndex * 100) / (plotDataCount ? plotDataCount : 1));
+//        plotProgress = (uint8_t)((currentBarIndex * 100) / (plotDataCount ? plotDataCount : 1));
 
         // tiny yield to keep system responsive
         vTaskDelay(pdMS_TO_TICKS(0));
