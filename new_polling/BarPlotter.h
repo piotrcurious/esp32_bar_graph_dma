@@ -60,6 +60,7 @@ private:
     bool createPerBarDmaBuffer();
     void prepareDmaBarBufferForValue(uint16_t v);
     uint16_t* windowPtrForValueAndCopy(uint16_t v, size_t copyIndex);
+    void clearSpacingAreas();
 };
 
 #endif // BAR_PLOTTER_H

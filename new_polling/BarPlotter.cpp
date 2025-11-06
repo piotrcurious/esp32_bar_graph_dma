@@ -88,7 +88,8 @@ void BarPlotter::startBarPlot(const uint16_t* dataArray, size_t count) {
     _currentBarIndex = 0;
     _plotInProgress = true;
     _plotQueueInProgress = true;
-    _tft.startWrite();
+
+    clearSpacingAreas();
 
     if (_plotTaskHandle == NULL) {
         const uint32_t stackSize = 8192;
@@ -245,19 +246,10 @@ void BarPlotter::plotTask(void* pvParameters) {
         if (self->_barSourceCopies) {
             uint16_t* src = self->windowPtrForValueAndCopy(value, copyIndex);
             self->_tft.pushImageDMA(dx, dy, w, h, src, nullptr);
-
-            if (self->_plotSpacing > 0 && self->_currentBarIndex + 1 < self->_plotDataCount) {
-                int gapX = dx + w;
-                self->_tft.fillRect(gapX, dy, self->_plotSpacing, h, self->_screenBg);
-            }
         } else if (self->_dmaBarBuffer) {
             self->prepareDmaBarBufferForValue(value);
             self->_tft.pushImageDMA(dx, dy, w, h, self->_dmaBarBuffer, nullptr);
             while (self->_tft.dmaBusy()) vTaskDelay(pdMS_TO_TICKS(1));
-            if (self->_plotSpacing > 0 && self->_currentBarIndex + 1 < self->_plotDataCount) {
-                int gapX = dx + w;
-                self->_tft.fillRect(gapX, dy, self->_plotSpacing, h,  self->_screenBg);
-            }
         } else {
             if (value > 0) {
                 int fillY = dy + (h - (int)value);
@@ -267,10 +259,6 @@ void BarPlotter::plotTask(void* pvParameters) {
                 int clearH = h - (int)value;
                 self->_tft.fillRect(dx, dy, w, clearH, self->_colorFg);
             }
-            if (self->_plotSpacing > 0 && self->_currentBarIndex + 1 < self->_plotDataCount) {
-                int gapX = dx + w;
-                self->_tft.fillRect(gapX, dy, self->_plotSpacing, h,  self->_screenBg);
-            }
         }
 
         self->_currentBarIndex++;
@@ -278,4 +266,18 @@ void BarPlotter::plotTask(void* pvParameters) {
     }
 
     vTaskDelete(NULL);
+}
+
+void BarPlotter::clearSpacingAreas() {
+    if (_plotSpacing == 0) return;
+
+    _tft.startWrite();
+    for (size_t i = 0; i < _barCount; ++i) {
+        int dx = _plotX + (int)i * (_barWidth + _plotSpacing);
+        int gapX = dx + _barWidth;
+        if (_plotSpacing > 0) {
+            _tft.fillRect(gapX, _plotY, _plotSpacing, _barMaxHeight, _screenBg);
+        }
+    }
+    _tft.endWrite();
 }

@@ -71,7 +71,6 @@ void loop() {
         yield();
     }
 
-    plotter.endWrite();
     uint32_t benchmark_end = millis();
 
     Serial.print("queue:");
